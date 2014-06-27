@@ -29,7 +29,17 @@ func base_path(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, I love %s!", r.URL.Path[1:])
 }
 
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len("/view/"):]
+	p, err := loadPage(title)
+	if err != nil {
+		fmt.Fprintf(w, "There was an error")
+	}
+	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
+}
+
 func main() {
+	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/", base_path)
 	http.ListenAndServe(":8080", nil)
 }
