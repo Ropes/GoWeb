@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"text/template"
 )
 
 type Page struct {
@@ -38,8 +39,19 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>%s</h1><div>%s</div>", p.Title, p.Body)
 }
 
+func editFile(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Path[len("/edit/"):]
+	p, err := loadPage(title)
+	if err != nil {
+		p = &Page{Title: title}
+	}
+	t, _ := template.ParseFiles("edit.html")
+	t.Execute(w, p)
+}
+
 func main() {
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/edit/", editFile)
 	http.HandleFunc("/", base_path)
 	http.ListenAndServe(":8080", nil)
 }
