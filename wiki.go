@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"regexp"
 	"text/template"
 )
 
@@ -30,13 +32,38 @@ func base_path(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, I love %s!", r.URL.Path[1:])
 }
 
+var validPath = regexp.MustCompile("^(view|edit|save|bad)/[a-zA-Z0-9]+$")
+
+func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
+	m := validPath.FindStringSubmatch(r.URL.Path)
+	if m == nil {
+		http.NotFound(w, r)
+		return "", errors.New("Invalid path")
+	}
+	fmt.Println(m)
+	return m[2], nil
+}
+
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	t, _ := template.ParseFiles(tmpl + ".html")
 	t.Execute(w, p)
 }
 
+func badHandler(w http.ResponseWriter, r *http.Request) {
+	_, err := getTitle(w, r)
+	if err != nil {
+		return
+	}
+	p := &Page{Title: "Bad page!", Body: []byte("Bad page path requested!")}
+	renderTemplate(w, "badpath", p)
+}
+
 func viewHandler(w http.ResponseWriter, r *http.Request) {
-	title := r.URL.Path[len("/view/"):]
+	title, err := getTitle(w, r)
+	if err != nil {
+		http.Redirect(w, r, "/bad/", http.StatusFound)
+		return
+	}
 	p, err := loadPage(title)
 	if err != nil {
 		http.Redirect(w, r, "/edit/"+title, http.StatusFound)
@@ -63,6 +90,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	http.HandleFunc("/bad/", badHandler)
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/edit/", editFile)
 	http.HandleFunc("/save/", saveHandler)
