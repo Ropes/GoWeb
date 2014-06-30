@@ -32,7 +32,7 @@ func base_path(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, I love %s!", r.URL.Path[1:])
 }
 
-var validPath = regexp.MustCompile("^(view|edit|save|bad)/[a-zA-Z0-9]+$")
+var validPath = regexp.MustCompile("^/(view|edit|save)/([a-zA-Z0-9]+)$")
 
 func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 	m := validPath.FindStringSubmatch(r.URL.Path)
@@ -40,7 +40,6 @@ func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 		http.NotFound(w, r)
 		return "", errors.New("Invalid path")
 	}
-	fmt.Println(m)
 	return m[2], nil
 }
 
@@ -61,7 +60,7 @@ func badHandler(w http.ResponseWriter, r *http.Request) {
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	title, err := getTitle(w, r)
 	if err != nil {
-		http.Redirect(w, r, "/bad/", http.StatusFound)
+		//http.Redirect(w, r, "/bad/", http.StatusFound)
 		return
 	}
 	p, err := loadPage(title)
@@ -90,7 +89,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/bad/", badHandler)
+	//http.HandleFunc("/bad/", badHandler)
 	http.HandleFunc("/view/", viewHandler)
 	http.HandleFunc("/edit/", editFile)
 	http.HandleFunc("/save/", saveHandler)
