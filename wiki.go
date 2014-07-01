@@ -21,13 +21,17 @@ type Page struct {
 	Body  []byte
 }
 
+func pageName(name string) string {
+	return "pages/" + name + ".txt"
+}
+
 func (p *Page) save() error {
-	filename := p.Title + ".txt"
+	filename := pageName(p.Title)
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
 func loadPage(title string) (*Page, error) {
-	filename := title + ".txt"
+	filename := pageName(title)
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -51,7 +55,7 @@ func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	t, _ := template.ParseFiles(tmpl + ".html")
+	t, _ := template.ParseFiles("templates/" + tmpl + ".html")
 	t.Execute(w, p)
 }
 
