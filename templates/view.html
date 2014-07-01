@@ -1,21 +1,16 @@
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+{{ define "title" }}
+    GoWiki: {{ .Title }}
+{{ end }}
 
-        <!-- Optional theme -->
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+{{ define "content" }}
+    <h1>{{.Title}}</h1>
+    <p>[<a href="/edit/{{.Title}}">edit</a>]</p>
+    <div>{{printf "%s" .Body}}</div>
 
-        <!-- Latest compiled and minified JavaScript -->
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-        <title>GoWiki: {{.Title}}</title>
-    </head>
+    {{ template "templates/footer" }}
+    <div>wat</div>
+{{ end}}
 
-    <body>
-        <h1>{{.Title}}</h1>
-        <p>[<a href="/edit/{{.Title}}">edit</a>]</p>
-        <div>{{printf "%s" .Body}}</div>
-    </body>
-</html>
+{{ define "footer" }}
+view feet?
+{{ end }}

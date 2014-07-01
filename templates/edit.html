@@ -1,6 +1,14 @@
-<h1>Editing {{.Title}}</h1>
+{{define "title"}}
+    Editing: {{.Title}}
+{{end}}
 
+{{ define "content" }}
 <form action="/save/{{.Title}}">
-    <div><textarea name="body" rows="20" cols=80>{{printf "%s" .Body}}</textarea></div>
-    <div><input type="submit" value="Save"></div>
+        <textarea name="body" rows="20" cols=80>
+            {{printf "%s" .Body}}
+        </textarea>
+        <input type="submit" value="Save">
 </form>
+{{ end }}
+
+{{ define "footer" }}feet?{{ end }}

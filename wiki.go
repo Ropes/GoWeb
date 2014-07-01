@@ -44,6 +44,7 @@ func base_path(w http.ResponseWriter, r *http.Request) {
 }
 
 var validPath = regexp.MustCompile("^/(view|edit|save)/([a-zA-Z0-9]+)$")
+var templates map[string]*template.Template
 
 func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 	m := validPath.FindStringSubmatch(r.URL.Path)
@@ -54,18 +55,38 @@ func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 	return m[2], nil
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	t, _ := template.ParseFiles("templates/" + tmpl + ".html")
-	t.Execute(w, p)
+func templateInit() {
+	if templates == nil {
+		templates = make(map[string]*template.Template)
+	}
+	/*
+		templates["view"] = template.Must(template.ParseFiles("templates/base.html", "templates/view.html"))
+		templates["edit"] = template.Must(template.ParseFiles("templates/base.html", "templates/edit.html"))
+	*/
+	templates["view"] = template.Must(template.ParseFiles(
+		"templates/base.html",
+		"templates/view.html"))
+	templates["edit"] = template.Must(template.ParseFiles(
+		"templates/base.html",
+		"templates/edit.html"))
+	fmt.Println(templates)
 }
 
-func badHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := getTitle(w, r)
-	if err != nil {
-		return
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) error {
+	//t, _ := template.ParseFiles("templates/" + tmpl + ".tmpl")
+	//t.Execute(w, p)
+	fmt.Println(tmpl)
+	t, ok := templates[tmpl]
+	if !ok {
+		return errors.New("Template not found!")
 	}
-	p := &Page{Title: "Bad page!", Body: []byte("Bad page path requested!")}
-	renderTemplate(w, "badpath", p)
+	//w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	//t.ExecuteTemplate(w, tmpl, p)
+	err := t.Execute(w, p)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return nil
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -104,6 +125,7 @@ func makeWikiHandler(fn func(http.ResponseWriter, *http.Request, string)) http.H
 }
 
 func main() {
+	templateInit()
 	flag.Parse()
 	//http.HandleFunc("/bad/", badHandler)
 	http.HandleFunc("/view/", makeWikiHandler(viewHandler))
