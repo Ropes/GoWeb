@@ -3,11 +3,11 @@
 {{end}}
 
 {{ define "content" }}
-<form action="/save/{{.Title}}">
-        <textarea name="body" rows="20" cols=80>
-            {{printf "%s" .Body}}
-        </textarea>
-        <input type="submit" value="Save">
+<h3>Edit {{.Title}}</h3>
+<form action="/save/{{.Title}}" method="POST">
+    <textarea name="body" rows="10" cols=80>{{printf "%s" .Body}}
+    </textarea></br>
+    <input type="submit" value="Save">
 </form>
 {{ end }}
 
