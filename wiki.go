@@ -59,29 +59,20 @@ func templateInit() {
 	if templates == nil {
 		templates = make(map[string]*template.Template)
 	}
-	/*
-		templates["view"] = template.Must(template.ParseFiles("templates/base.html", "templates/view.html"))
-		templates["edit"] = template.Must(template.ParseFiles("templates/base.html", "templates/edit.html"))
-	*/
 	templates["view"] = template.Must(template.ParseFiles(
 		"templates/base.html",
 		"templates/view.html"))
 	templates["edit"] = template.Must(template.ParseFiles(
 		"templates/base.html",
 		"templates/edit.html"))
-	fmt.Println(templates)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) error {
-	//t, _ := template.ParseFiles("templates/" + tmpl + ".tmpl")
-	//t.Execute(w, p)
-	fmt.Println(tmpl)
 	t, ok := templates[tmpl]
 	if !ok {
 		return errors.New("Template not found!")
 	}
-	//w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	//t.ExecuteTemplate(w, tmpl, p)
+
 	err := t.Execute(w, p)
 	if err != nil {
 		fmt.Println(err)
@@ -127,7 +118,6 @@ func makeWikiHandler(fn func(http.ResponseWriter, *http.Request, string)) http.H
 func main() {
 	templateInit()
 	flag.Parse()
-	//http.HandleFunc("/bad/", badHandler)
 	http.HandleFunc("/view/", makeWikiHandler(viewHandler))
 	http.HandleFunc("/edit/", makeWikiHandler(editFile))
 	http.HandleFunc("/save/", makeWikiHandler(saveHandler))
