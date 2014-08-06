@@ -35,6 +35,10 @@ func (p *Page) save() error {
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
+func staticName(name string) string {
+	return "static/" + name
+}
+
 func loadPage(title string) (*Page, error) {
 	filename := pageName(title)
 	body, err := ioutil.ReadFile(filename)
@@ -42,6 +46,14 @@ func loadPage(title string) (*Page, error) {
 		return nil, err
 	}
 	return &Page{Title: title, Body: body}, nil
+}
+
+func loadStatic(fpath string) ([]byte, error) {
+	body, err := ioutil.ReadFile(fpath)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
 func base_path(w http.ResponseWriter, r *http.Request) {
@@ -117,6 +129,16 @@ func d3Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func staticHandler(w http.ResponseWriter, r *http.Request) {
+	fpath := r.URL.Path[1:]
+	static, err := loadStatic(fpath)
+	//fmt.Fprintf(w, "Hello, I love %s!", r.URL.Path[1:])
+	if err != nil {
+		fmt.Fprintf(w, "Unable to return static asset: %s!", fpath)
+	}
+	fmt.Fprintf(w, "%s", static)
+}
+
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
@@ -145,6 +167,7 @@ func main() {
 
 	//D3 Example handlers
 	http.HandleFunc("/d3", d3Handler)
+	http.HandleFunc("/static/", staticHandler)
 
 	if *addr {
 		l, err := net.Listen("tcp", "127.0.0.1:0")
