@@ -21,6 +21,11 @@ type Page struct {
 	Body  []byte
 }
 
+type D3Page struct {
+	Title string
+	Data  interface{}
+}
+
 func pageName(name string) string {
 	return "pages/" + name + ".txt"
 }
@@ -65,6 +70,9 @@ func templateInit() {
 	templates["edit"] = template.Must(template.ParseFiles(
 		"templates/base.html",
 		"templates/edit.html"))
+	templates["d3"] = template.Must(template.ParseFiles(
+		"templates/base.html",
+		"templates/ddd.html"))
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) error {
@@ -97,6 +105,18 @@ func editFile(w http.ResponseWriter, r *http.Request, title string) {
 	renderTemplate(w, "edit", p)
 }
 
+func d3Handler(w http.ResponseWriter, r *http.Request) {
+	t, ok := templates["d3"]
+	if !ok {
+		fmt.Println(errors.New("Template not found!"))
+	}
+	dp := &D3Page{Title: "D3 Demo", Data: nil}
+	err := t.Execute(w, dp)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
@@ -104,7 +124,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
-func makeWikiHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		m := validPath.FindStringSubmatch(r.URL.Path)
 		if m == nil {
@@ -118,10 +138,13 @@ func makeWikiHandler(fn func(http.ResponseWriter, *http.Request, string)) http.H
 func main() {
 	templateInit()
 	flag.Parse()
-	http.HandleFunc("/view/", makeWikiHandler(viewHandler))
-	http.HandleFunc("/edit/", makeWikiHandler(editFile))
-	http.HandleFunc("/save/", makeWikiHandler(saveHandler))
+	http.HandleFunc("/view/", makeHandler(viewHandler))
+	http.HandleFunc("/edit/", makeHandler(editFile))
+	http.HandleFunc("/save/", makeHandler(saveHandler))
 	http.HandleFunc("/", base_path)
+
+	//D3 Example handlers
+	http.HandleFunc("/d3", d3Handler)
 
 	if *addr {
 		l, err := net.Listen("tcp", "127.0.0.1:0")
