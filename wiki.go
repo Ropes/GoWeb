@@ -83,7 +83,7 @@ func templateInit() {
 		"templates/base.html",
 		"templates/edit.html"))
 	templates["d3"] = template.Must(template.ParseFiles(
-		"templates/base.html",
+		"templates/d3base.html",
 		"templates/ddd.html"))
 }
 
