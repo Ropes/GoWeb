@@ -48,14 +48,6 @@ func loadPage(title string) (*Page, error) {
 	return &Page{Title: title, Body: body}, nil
 }
 
-func loadStatic(fpath string) ([]byte, error) {
-	body, err := ioutil.ReadFile(fpath)
-	if err != nil {
-		return nil, err
-	}
-	return body, nil
-}
-
 func base_path(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, I love %s!", r.URL.Path[1:])
 }
@@ -129,16 +121,6 @@ func d3Handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func staticHandler(w http.ResponseWriter, r *http.Request) {
-	fpath := r.URL.Path[1:]
-	static, err := loadStatic(fpath)
-	//fmt.Fprintf(w, "Hello, I love %s!", r.URL.Path[1:])
-	if err != nil {
-		fmt.Fprintf(w, "Unable to return static asset: %s!", fpath)
-	}
-	fmt.Fprintf(w, "%s", static)
-}
-
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	body := r.FormValue("body")
 	p := &Page{Title: title, Body: []byte(body)}
@@ -163,12 +145,10 @@ func main() {
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editFile))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
-	//http.HandleFunc("/", base_path)
+	http.HandleFunc("/", base_path)
 
 	//D3 Example handlers
 	http.HandleFunc("/d3", d3Handler)
-	//http.HandleFunc("/static/", staticHandler)
-	//http.Handle("/static/", http.FileServer(http.Dir("./static")))
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
