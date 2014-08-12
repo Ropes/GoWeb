@@ -163,11 +163,16 @@ func main() {
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/edit/", makeHandler(editFile))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
-	http.HandleFunc("/", base_path)
+	//http.HandleFunc("/", base_path)
 
 	//D3 Example handlers
 	http.HandleFunc("/d3", d3Handler)
-	http.HandleFunc("/static/", staticHandler)
+	//http.HandleFunc("/static/", staticHandler)
+	//http.Handle("/static/", http.FileServer(http.Dir("./static")))
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	//http.Handle("/static/", http.FileServer(http.Dir("/home/ropes/dev/go/src/github.com/ropes/gowiki/static")))
 
 	if *addr {
 		l, err := net.Listen("tcp", "127.0.0.1:0")
