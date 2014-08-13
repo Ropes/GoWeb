@@ -26,7 +26,7 @@ d3.tsv("static/data/charts.tsv", type, function(error, data) {
         .attr("width", barWidth -1);
 
     bar.append("text")
-        .attr("y", function(d) { return x(d.value) + 3; })
+        .attr("y", function(d) { return y(d.value) + 3; })
         .attr("x", barWidth/2)
         .attr("dy", ".75em")
         .text(function(d) { return d.value; });
