@@ -19,7 +19,7 @@ d3.tsv("static/data/charts.tsv", type, function(error, data) {
         .attr("transform", function(d, i){ return "translate(0," + i * barHeight + ")"; });
 
     bar.append("rect")
-        .attr("width", function(d){ x(d.value); })
+        .attr("width", function(d){ return x(d.value); })
         .attr("height", barHeight -1);
 
     bar.append("text")
