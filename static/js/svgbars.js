@@ -1,4 +1,4 @@
-var margin = {top: 20, right:30, left: 30, bottom: 40},
+var margin = {top: 20, right:30, left: 50, bottom: 40},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -31,7 +31,13 @@ d3.tsv("static/data/charts.tsv", type, function(error, data) {
 
     chart.append("g")
         .attr("class", "y axis")
-        .call(yAxis);
+        .call(yAxis)
+        .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Frequency");
 
     chart.selectAll(".bar")
         .data(data)
